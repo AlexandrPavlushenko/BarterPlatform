@@ -1,10 +1,129 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}Профиль{% endblock title %}
+
+{% block content %}
+    <div class="column left-column"></div>
+    <div class="column middle-column d-flex justify-content-center align-items-start" style="height: 94vh;">
+        <div class="text-container w-50 mt-5">
+            <p class="custom-font1 gradient-text">Профиль</p>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body">
+                    {% if messages %}
+                        <div class="mb-3">
+                            {% for message in messages %}
+                                <div class="alert alert-danger">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Поля для редактирования профиля -->
+                    <div class="mb-3">
+                        <label for="id_first_name" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Имя
+                        </label>
+                        <input type="text" name="first_name" id="id_first_name" class="form-control"
+                               value="{{ form.first_name.value|default:'' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_last_name" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Фамилия
+                        </label>
+                        <input type="text" name="last_name" id="id_last_name" class="form-control"
+                               value="{{ form.last_name.value|default:'' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_phone" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Телефон
+                        </label>
+                        <input type="text" name="phone" id="id_phone" class="form-control"
+                               value="{{ form.phone.value|default:'' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_avatar" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Аватар
+                        </label>
+                        <div id="avatar-container">
+                            {% if user.avatar %}
+                                <div>
+                                    <img src="{{ user.avatar.url }}" alt="Текущий аватар"
+                                         id="current-avatar" style="max-width: 100px; margin-bottom: 10px;">
+                                    <label>
+                                        <input type="checkbox" name="remove_avatar"> Удалить аватар
+                                    </label>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <input type="file" name="avatar" id="id_avatar" class="form-control" accept="image/*"
+                               onchange="previewAvatar(event)">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_city" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Город
+                        </label>
+                        <input type="text" name="country" id="id_country" class="form-control"
+                               value="{{ form.country.value|default:'' }}">
+                    </div>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer text-center">
+                    <button type="submit" class="custom-button custom-font2">
+                        Сохранить изменения
+                    </button>
+                    <div class="custom-font2">
+                        <a href="{% url 'main:index' %}" class="forgot-password-link">Назад на главную</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="column right-column"></div>
+
+    <script>
+        function previewAvatar(event) {
+            const input = event.target;
+            const container = document.getElementById('avatar-container');
+            // Удаляем предыдущие изображения, если они есть
+            container.innerHTML = '';
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // Создаём изображение и чекбокс
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = "Загруженный аватар";
+                    img.style.maxWidth = "100px";
+                    img.style.marginBottom = "10px";
+
+                    const label = document.createElement('label');
+                    label.innerHTML = '<input type="checkbox" name="remove_avatar"> Удалить аватар';
+                    
+
+                    // Добавляем их на страницу
+                    container.appendChild(img);
+                    container.appendChild(label);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+{% endblock content %}

@@ -1,10 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}Вход в систему{% endblock title %}
+
+{% block content %}
+    <div class="column left-column"></div>
+    <div class="column middle-column d-flex justify-content-center align-items-start" style="height: 94vh;">
+        <div class="text-container w-50 mt-5">
+            <p class="custom-font1 gradient-text">Вход в систему</p>
+            {% if messages %}
+                <div class="alert alert-danger" style="border-radius: 25px" role="alert">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Введите вашу почту
+                        </label>
+                        <input type="text" name="username" id="id_username" class="form-control shadow-none">
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Введите ваш пароль
+                        </label>
+                        <input type="password" name="password" id="id_password" class="form-control shadow-none">
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <button type="submit" class="custom-button custom-font2">
+                        Войти
+                    </button>
+                    <div class="custom-font2">
+                        <a href="{% url 'users:password_reset' %}" class="forgot-password-link">Забыли пароль?</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="column right-column"></div>
+{% endblock content %}

@@ -1,0 +1,186 @@
+@font-face {
+    font-family: 'Great Vibes';
+    src: url("../fonts/GreatVibes-Regular.ttf");
+}
+
+@font-face {
+    font-family: 'Arsenal';
+    src: url("../fonts/Arsenal-Italic.ttf");
+}
+
+.custom-font1 {
+    font-family: 'Great Vibes', cursive;
+    font-size: 80px;
+    margin-bottom: 0;
+}
+
+.custom-font2 {
+    font-family: 'Arsenal', cursive;
+    font-size: 23px;
+    color: dimgray;
+}
+
+.gradient-text {
+    background: linear-gradient(90deg, dimgray, #ece3c2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.custom-button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 20px;
+    color: dimgray;
+    background-color: #ece3c2;
+    border-radius: 25px;
+    text-decoration: none;
+    border: 1px solid gray;
+}
+
+.custom-button:hover {
+    background-color: #998866;
+    color: white;
+}
+
+.middle-column {
+    flex: 8;
+    background-image: url("../img/bg.jpg");
+    background-size: cover;
+    background-position: center;
+    border: 2px solid gray;
+    height: calc(100vh - 76px);
+}
+
+.navbar {
+    background-color: #ededed;
+    border-radius: 5px;
+    border: 2px solid gray;
+    height: 80px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    font-family: "Arsenal", serif;
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: #aeacac;
+    color: white;
+    border-radius: 25px;
+}
+
+.navbar-brand {
+    color: dimgray;
+    text-decoration: none;
+}
+
+.navbar-nav .nav-link {
+    border-radius: 25px;
+    border: 1px solid gray;
+    margin-left: 5px;
+    font-size: 18px;
+}
+
+body {
+    margin: 0;
+    padding-top: 75px;
+    display: flex;
+}
+
+.column {
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+.left-column {
+    flex: 3;
+    background-color: #e1e2e3;
+}
+
+.right-column {
+    flex: 3;
+    background-color: #e1e2e3;
+}
+
+.text-container {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+    text-align: center;
+    max-width: 1100px;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.logo-img:hover {
+    filter: invert(10%);
+}
+
+.form-control {
+    border: 1px solid dimgray;
+    border-radius: 20px;
+    padding: 10px;
+    font-size: 16px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: gray;
+}
+
+
+.form-control:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.forgot-password-link {
+    font-size: 18px;
+    color: #998866;
+    text-decoration: none;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+}
+
+.dropdown-item:focus {
+    background-color: dimgray;
+    color: white;
+}
+
+.form-check-input {
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.form-check-input:hover {
+    border-color: darkgray;
+}
+
+.form-check-input:hover span {
+    color: dimgray;
+}
+
+.search-container {
+    position: relative;
+    display: inline-block;
+    width: 300px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+
+.search-input {
+    padding-left: 40px;
+    width: 100%;
+}
+
+
+
+

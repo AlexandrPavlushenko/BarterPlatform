@@ -1,10 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}Регистрация{% endblock title %}
+
+{% block content %}
+    <div class="column left-column"></div>
+    <div class="column middle-column d-flex justify-content-center align-items-start" style="height: 94vh;">
+        <div class="text-container w-50 mt-5">
+            <p class="custom-font1 gradient-text">Регистрация</p>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body">
+                    <label>
+                        <input type="text" name="fakeemail" style="display:none;">
+                    </label>
+                    <label>
+                        <input type="password" name="fakepassword" style="display:none;">
+                    </label>
+                    {% if messages %}
+                        <div class="mb-3">
+                            {% for message in messages %}
+                                <div class="alert alert-danger">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Эл.почта
+                        </label>
+                        <input type="email" name="email" id="id_email"
+                               class="form-control"
+                               value="{{ form.email.value|default:'' }}" required
+                               autocomplete="new-email">
+                        {% if form.email.errors %}
+                            <div class="text-danger">
+                                {{ form.email.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password1" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Пароль
+                        </label>
+                        <input type="password" name="password1" id="id_password1"
+                               class="form-control" required
+                               autocomplete="new-password">
+                        {% if form.password1.errors %}
+                            <div class="text-danger">
+                                {{ form.password1.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password2" class="form-label"
+                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                            Повторите пароль
+                        </label>
+                        <input type="password" name="password2" id="id_password2"
+                               class="form-control" required
+                               autocomplete="new-password">
+                        {% if form.password2.errors %}
+                            <div class="text-danger">
+                                {{ form.password2.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <button type="submit" class="custom-button custom-font2">
+                        Зарегистрироваться
+                    </button>
+                    <div class="custom-font2">
+                        <a href="{% url 'users:login' %}" class="forgot-password-link">Уже есть аккаунт? Войти</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="column right-column"></div>
+{% endblock content %}

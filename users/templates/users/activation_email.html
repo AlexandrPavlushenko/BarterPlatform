@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% autoescape off %}
+Здравствуйте, {{ user.email }}!
 
-</body>
-</html>
+Пожалуйста, активируйте свою учетную запись, пройдя по следующей ссылке:
+
+{{ activation_link }}
+
+Спасибо! С уважением, Barter Platform.
+{% endautoescape %}

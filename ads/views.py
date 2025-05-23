@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from django.views import generic
 
-# Create your views here.
+
+class BarterMainView(generic.TemplateView):
+    """Представление для главной страницы"""
+
+    template_name = "ads/barter_main.html"
+

@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}Главная{% endblock title %}
+
+{% block content %}
+    <div class="column left-column"></div>
+    <div class="column middle-column d-flex justify-content-center align-items-start" style="height: 94vh;">
+        <div class="text-container mt-5 ">
+            <p class="custom-font1 text-center mt-3 gradient-text">Barter Platform</p>
+            <p class="custom-font2 text-center"><b>
+                Добро пожаловать в Barter Platform
+                - Платформа для обмена вещами!</b>
+            </p>
+            <div class="text-center">
+                <a href="{% url 'users:register' %}" class="custom-button custom-font2">Начать обмениваться</a>
+            </div>
+        </div>
+    </div>
+    <div class="column right-column"></div>
+{% endblock content %}
