@@ -18,18 +18,32 @@
         </a>
         <ul class="navbar-nav flex-grow-1">
             {% if user.is_authenticated %}
+                <!-- Новое выпадающее меню для объявлений -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="adsDropdown" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px">
+                        Объявления
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="adsDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'ads:ad_create' %}" style="font-size: 18px">
+                                Создать объявление
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'ads:ad_list' %}" style="font-size: 18px">
+                                Мои объявления
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'ads:ad_list' %}" style="font-size: 18px">
+                                Все объявления
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             {% endif %}
         </ul>
-        <div class="d-flex align-items-center me-3">
-            {% if user.is_authenticated %}
-                <form method="get" class="d-flex align-items-center">
-                    <div class="search-container">
-                        <img src="{% static 'img/search_icon.png' %}" alt="Поиск" class="search-icon" onclick="this.closest('form').submit();">
-                        <input type="text" name="q" placeholder="Поиск..." class="form-control search-input">
-                    </div>
-                </form>
-            {% endif %}
-        </div>
         <ul class="navbar-nav ms-auto">
             {% if user.is_authenticated %}
                 <div class="d-flex align-items-center">

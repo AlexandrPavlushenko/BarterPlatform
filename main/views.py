@@ -13,5 +13,5 @@ class IndexView(generic.TemplateView):
     # Если пользователь авторизован, перенаправляем его на страницу обмена
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect(reverse("ads:barter_main"))
+            return redirect(reverse("ads:ad_list"))
         return super().dispatch(request, *args, **kwargs)

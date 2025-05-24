@@ -1,6 +1,7 @@
 # dev
 Django==5.2.1
 djangorestframework==3.16.0
+djangorestframework_simplejwt==5.5.0
 pillow==11.2.1
 psycopg2-binary==2.9.10
 python-dotenv==1.1.0

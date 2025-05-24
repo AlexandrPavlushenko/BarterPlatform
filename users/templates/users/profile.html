@@ -1,129 +1,223 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Профиль{% endblock title %}
+{% block title %}Редактировать профиль{% endblock title %}
 
 {% block content %}
     <div class="column left-column"></div>
     <div class="column middle-column d-flex justify-content-center align-items-start" style="height: 94vh;">
         <div class="text-container w-50 mt-5">
-            <p class="custom-font1 gradient-text">Профиль</p>
-            <form method="post" enctype="multipart/form-data">
+            <h1 class="custom-font1 gradient-text">Редактировать профиль</h1>
+
+            <form id="profile-form" method="post" enctype="multipart/form-data" action="{% url 'users:profile' %}">
                 {% csrf_token %}
-                <div class="card-body">
-                    {% if messages %}
-                        <div class="mb-3">
-                            {% for message in messages %}
-                                <div class="alert alert-danger">{{ message }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
 
-                    <!-- Поля для редактирования профиля -->
-                    <div class="mb-3">
-                        <label for="id_first_name" class="form-label"
-                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
-                            Имя
-                        </label>
-                        <input type="text" name="first_name" id="id_first_name" class="form-control"
-                               value="{{ form.first_name.value|default:'' }}">
-                    </div>
+                <!-- Аватар -->
+                <div class="mb-4">
+                    <label class="form-label"
+                           style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
+                        Аватар профиля
+                    </label>
 
-                    <div class="mb-3">
-                        <label for="id_last_name" class="form-label"
-                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
-                            Фамилия
-                        </label>
-                        <input type="text" name="last_name" id="id_last_name" class="form-control"
-                               value="{{ form.last_name.value|default:'' }}">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="id_phone" class="form-label"
-                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
-                            Телефон
-                        </label>
-                        <input type="text" name="phone" id="id_phone" class="form-control"
-                               value="{{ form.phone.value|default:'' }}">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="id_avatar" class="form-label"
-                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
-                            Аватар
-                        </label>
-                        <div id="avatar-container">
+                    <div class="image-upload-container text-center">
+                        <div class="image-wrapper ratio-1-1">
                             {% if user.avatar %}
-                                <div>
-                                    <img src="{{ user.avatar.url }}" alt="Текущий аватар"
-                                         id="current-avatar" style="max-width: 100px; margin-bottom: 10px;">
-                                    <label>
-                                        <input type="checkbox" name="remove_avatar"> Удалить аватар
-                                    </label>
-                                </div>
+                                <img src="{{ user.avatar.url }}"
+                                     id="current-avatar"
+                                     class="img-preview rounded-circle"
+                                     alt="Текущий аватар">
                             {% endif %}
+                            <img src="" id="avatar-preview" class="img-preview rounded-circle" style="display: none;">
+                            <div id="no-avatar" class="no-image-placeholder rounded-circle"
+                                 style="{% if user.avatar %}display: none;{% endif %}">
+                                <i class="fas fa-user" style="font-size: 3rem; color: #ddd;"></i>
+                            </div>
                         </div>
-                        <input type="file" name="avatar" id="id_avatar" class="form-control" accept="image/*"
-                               onchange="previewAvatar(event)">
-                    </div>
 
-                    <div class="mb-3">
-                        <label for="id_city" class="form-label"
-                               style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
-                            Город
-                        </label>
-                        <input type="text" name="country" id="id_country" class="form-control"
-                               value="{{ form.country.value|default:'' }}">
-                    </div>
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors }}
+                        <div class="d-flex justify-content-center gap-3 mt-3">
+                            <input type="file" name="avatar" id="id_avatar" accept="image/*" style="display: none;">
+                            <input type="hidden" name="redirect_to" value="ad_list">
+
+                            <button type="button" class="upload-btn"
+                                    onclick="document.getElementById('id_avatar').click()">
+                                <i class="fas fa-camera me-2"></i>Выбрать
+                            </button>
+
+                            <button type="button" id="remove-avatar-btn" class="btn btn-outline-danger"
+                                    {% if not user.avatar %}style="display: none;"{% endif %}>
+                                <i class="fas fa-trash me-2"></i>Удалить
+                            </button>
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
 
+                <!-- Основные поля -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="id_first_name" class="form-label">
+                                Имя
+                            </label>
+                            <input type="text" name="first_name" id="id_first_name" class="form-control"
+                                   value="{{ form.first_name.value|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="id_last_name" class="form-label">
+                                Фамилия
+                            </label>
+                            <input type="text" name="last_name" id="id_last_name" class="form-control"
+                                   value="{{ form.last_name.value|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Контакты -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="id_phone" class="form-label">
+                                Телефон
+                            </label>
+                            <input type="text" name="phone" id="id_phone" class="form-control"
+                                   value="{{ form.phone.value|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="id_city" class="form-label">
+                                Город
+                            </label>
+                            <input type="text" name="city" id="id_city" class="form-control"
+                                   value="{{ form.city.value|default:'' }}">
+                        </div>
+                    </div>
+                </div>
                 <div class="card-footer text-center">
-                    <button type="submit" class="custom-button custom-font2">
+                    <button type="submit" class="custom-button mb-3" style="font-family: Arsenal, sans-serif">
                         Сохранить изменения
                     </button>
-                    <div class="custom-font2">
-                        <a href="{% url 'main:index' %}" class="forgot-password-link">Назад на главную</a>
-                    </div>
                 </div>
+                <a href="{% url 'ads:ad_list' %}" class="forgot-password-link" style="font-family: Arsenal, sans-serif">
+                    <i class="fas fa-arrow-left me-2"></i>Отмена
+                </a>
             </form>
         </div>
     </div>
     <div class="column right-column"></div>
 
     <script>
-        function previewAvatar(event) {
-            const input = event.target;
-            const container = document.getElementById('avatar-container');
-            // Удаляем предыдущие изображения, если они есть
-            container.innerHTML = '';
+        document.addEventListener('DOMContentLoaded', function () {
+            const avatarInput = document.getElementById('id_avatar');
+            const currentAvatar = document.getElementById('current-avatar');
+            const avatarPreview = document.getElementById('avatar-preview');
+            const noAvatar = document.getElementById('no-avatar');
+            const removeBtn = document.getElementById('remove-avatar-btn');
+            const form = document.getElementById('profile-form');
 
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-
-                reader.onload = function (e) {
-                    // Создаём изображение и чекбокс
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.alt = "Загруженный аватар";
-                    img.style.maxWidth = "100px";
-                    img.style.marginBottom = "10px";
-
-                    const label = document.createElement('label');
-                    label.innerHTML = '<input type="checkbox" name="remove_avatar"> Удалить аватар';
-                    
-
-                    // Добавляем их на страницу
-                    container.appendChild(img);
-                    container.appendChild(label);
+            // Обработка выбора нового изображения
+            avatarInput.addEventListener('change', function () {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        avatarPreview.src = e.target.result;
+                        avatarPreview.style.display = 'block';
+                        if (currentAvatar) currentAvatar.style.display = 'none';
+                        noAvatar.style.display = 'none';
+                        removeBtn.style.display = 'inline-block';
+                    };
+                    reader.readAsDataURL(this.files[0]);
                 }
+            });
 
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+            // Удаление аватара
+            removeBtn.addEventListener('click', function () {
+                if (currentAvatar) currentAvatar.style.display = 'none';
+                avatarPreview.style.display = 'none';
+                noAvatar.style.display = 'flex';
+                this.style.display = 'none';
+                avatarInput.value = '';
+
+                // Создаем скрытое поле для удаления аватара
+                const existingClear = document.querySelector('input[name="avatar-clear"]');
+                if (!existingClear) {
+                    const clearInput = document.createElement('input');
+                    clearInput.type = 'hidden';
+                    clearInput.name = 'avatar-clear';
+                    clearInput.value = '1';
+                    form.appendChild(clearInput);
+                }
+            });
+        });
     </script>
+
+    <style>
+        .image-upload-container {
+            margin: 0 auto;
+            max-width: 300px;
+        }
+
+        .image-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+        }
+
+        .img-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .no-image-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #adb5bd;
+            font-size: 3rem;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: #f8f9fa;
+            color: dimgray;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: Arsenal, sans-serif;
+            font-size: 16px;
+        }
+        
+        .upload-btn:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        #remove-avatar-btn {
+            font-family: Arsenal, sans-serif;
+            border-radius: 25px;
+        }
+
+        .btn-link {
+            color: #6c757d;
+            text-decoration: none;
+        }
+    </style>
 {% endblock content %}
