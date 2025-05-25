@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Удаление объявления{% endblock title %}
+
+{% block content %}
+    <div class="column left-column"></div>
+    <div class="column middle-column">
+        <div class="container mt-5" style="font-family: 'Arsenal', sans-serif;">
+            <!-- Карточка с заголовком -->
+            <div class="card mb-4" style="background-color: rgba(255, 255, 255, 0.8); border-radius: 20px;">
+                <div class="card-body">
+                    <h2 class="mb-4 custom-font1 text-center gradient-text">Удаление объявления</h2>
+                </div>
+            </div>
+
+            <!-- Основная карточка с формой -->
+            <div class="card" style="background-color: rgba(255, 255, 255, 0.8); border-radius: 20px;">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <p class="text-center" style="font-size: 18px; margin-bottom: 25px;">
+                            Вы уверены, что хотите удалить объявление<br>
+                            <strong>"{{ object.title }}"</strong>?
+                        </p>
+                        
+                        <div class="d-flex justify-content-center gap-3">
+                            <button type="submit" class="custom-button-sm">
+                                Удалить
+                            </button>
+                            <a href="{% url 'ads:ad_detail' ad.pk %}?my_ads=true" class="custom-button-sm">
+                                Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="column right-column"></div>
+
+    <style>
+    
+        body {
+            font-family: 'Arsenal', sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .column {
+            padding: 0 15px;
+        }
+
+        .left-column, .right-column {
+            flex: 0 0 10%;
+            max-width: 10%;
+        }
+
+        .middle-column {
+            flex: 0 0 80%;
+            max-width: 80%;
+        }
+    </style>
+{% endblock content %}

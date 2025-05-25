@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.min.css" %}">
-    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    <link rel="stylesheet" href="{% static "css/base.css" %}">
     <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
 </head>
 <body>
@@ -31,13 +31,13 @@
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="{% url 'ads:ad_list' %}" style="font-size: 18px">
+                            <a class="dropdown-item" href="{% url 'ads:ad_list' %}?my_ads=true" style="font-size: 18px">
                                 Мои объявления
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="{% url 'ads:ad_list' %}" style="font-size: 18px">
-                                Все объявления
+                                Объявления об обмене
                             </a>
                         </li>
                     </ul>

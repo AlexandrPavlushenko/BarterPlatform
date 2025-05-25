@@ -21,7 +21,7 @@
 }
 
 .gradient-text {
-    background: linear-gradient(90deg, dimgray, #ece3c2);
+    background: linear-gradient(70deg, #3c322d, #dfb50c);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -182,5 +182,22 @@ body {
 }
 
 
+.custom-button-sm {
+            display: inline-block;
+            padding: 5px 15px;
+            font-size: 16px;
+            color: dimgray;
+            background-color: #ece3c2;
+            border-radius: 25px;
+            text-decoration: none;
+            border: 1px solid gray;
+            font-family: 'Arsenal', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .custom-button-sm:hover {
+            background-color: #998866;
+            color: white;
+        }
 
 

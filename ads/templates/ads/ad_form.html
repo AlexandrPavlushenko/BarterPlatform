@@ -11,7 +11,7 @@
                 {% if form.instance.pk %}Редактировать объявление{% else %}Создать объявление{% endif %}
             </h1>
             
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" id="ad-form">
                 {% csrf_token %}
                 <div class="card-body">
                     {% if messages %}
@@ -26,10 +26,15 @@
                     <div class="mb-3">
                         <label for="id_title" class="form-label"
                                style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
-                            Заголовок
+                            Заголовок (максимум 100 символов)
                         </label>
                         <input type="text" name="title" id="id_title" class="form-control"
-                               value="{{ form.title.value|default:'' }}" required>
+                               value="{{ form.title.value|default:'' }}" 
+                               maxlength="100"
+                               required>
+                        <div class="text-muted small mt-1">
+                            <span id="title-counter">0</span>/100 символов
+                        </div>
                         {% if form.title.errors %}
                             <div class="text-danger">{{ form.title.errors.0 }}</div>
                         {% endif %}
@@ -39,9 +44,13 @@
                     <div class="mb-3">
                         <label for="id_description" class="form-label"
                                style="font-size: 20px;font-family: Arsenal, sans-serif; color: dimgray">
-                            Описание товара
+                            Описание товара (максимум 500 символов)
                         </label>
-                        <textarea name="description" id="id_description" class="form-control" required rows="10">{{ form.description.value|default:'' }}</textarea>
+                        <textarea name="description" id="id_description" class="form-control" 
+                                  required rows="10" maxlength="500">{{ form.description.value|default:'' }}</textarea>
+                        <div class="text-muted small mt-1">
+                            <span id="description-counter">0</span>/500 символов
+                        </div>
                         {% if form.description.errors %}
                             <div class="text-danger">{{ form.description.errors.0 }}</div>
                         {% endif %}
@@ -70,7 +79,7 @@
                             </div>
                             
                             <div class="d-flex justify-content-center gap-3 mt-3">
-                            <!-- Кнопка выбора изображения -->
+                                <!-- Кнопка выбора изображения -->
                                 <button type="button" class="upload-btn" onclick="document.getElementById('id_image').click()">
                                     <i class="fas fa-camera me-2"></i>
                                     Выбрать
@@ -209,6 +218,32 @@
             font-family: Arsenal, sans-serif;
             border-radius: 25px;
         }
+        
+        .custom-button {
+            display: inline-block;
+            padding: 10px 30px;
+            font-size: 18px;
+            color: dimgray;
+            background-color: #ece3c2;
+            border-radius: 25px;
+            text-decoration: none;
+            border: 1px solid gray;
+            transition: all 0.3s;
+        }
+        
+        .custom-button:hover {
+            background-color: #998866;
+            color: white;
+        }
+        
+        .forgot-password-link {
+            color: dimgray;
+            text-decoration: none;
+        }
+        
+        .forgot-password-link:hover {
+            text-decoration: underline;
+        }
     </style>
 
     <script>
@@ -218,7 +253,7 @@
             const imagePreview = document.getElementById('image-preview');
             const noImage = document.getElementById('no-image');
             const removeBtn = document.getElementById('remove-image-btn');
-            const form = document.querySelector('form');
+            const form = document.getElementById('ad-form');
 
             // Обработка выбора нового изображения
             imageInput.addEventListener('change', function() {
@@ -252,6 +287,50 @@
                     clearInput.value = '1';
                     form.appendChild(clearInput);
                 }
+            });
+            
+            // Счетчики символов
+            const titleInput = document.getElementById('id_title');
+            const descriptionInput = document.getElementById('id_description');
+            const titleCounter = document.getElementById('title-counter');
+            const descriptionCounter = document.getElementById('description-counter');
+            
+            // Инициализация счетчиков
+            titleCounter.textContent = titleInput.value.length;
+            descriptionCounter.textContent = descriptionInput.value.length;
+            
+            // Обработчики ввода
+            titleInput.addEventListener('input', function() {
+                titleCounter.textContent = this.value.length;
+                if (this.value.length > 100) {
+                    this.value = this.value.substring(0, 100);
+                    titleCounter.textContent = 100;
+                }
+            });
+            
+            descriptionInput.addEventListener('input', function() {
+                descriptionCounter.textContent = this.value.length;
+                if (this.value.length > 500) {
+                    this.value = this.value.substring(0, 500);
+                    descriptionCounter.textContent = 500;
+                }
+            });
+            
+            // Валидация перед отправкой
+            form.addEventListener('submit', function(e) {
+                if (titleInput.value.length > 100) {
+                    e.preventDefault();
+                    alert('Заголовок не должен превышать 100 символов');
+                    return false;
+                }
+                
+                if (descriptionInput.value.length > 500) {
+                    e.preventDefault();
+                    alert('Описание не должно превышать 500 символов');
+                    return false;
+                }
+                
+                return true;
             });
         });
     </script>

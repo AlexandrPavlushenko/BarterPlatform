@@ -1,10 +1,160 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}{{ ad.title }}{% endblock title %}
+
+{% block content %}
+    <div class="column left-column"></div>
+    <div class="column middle-column">
+        <div class="container mt-4" style="font-family: 'Arsenal', sans-serif; width: 900px;">
+            <!-- Детали объявления -->
+            <div class="card mb-4" style="background-color: rgba(255, 255, 255, 0.8); border-radius: 20px;">
+                <div class="card-body">
+                    <!-- Заголовок и информация -->
+                    <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap">
+                        <h2 class="card-title" style="font-family: 'Arsenal', sans-serif; word-break: break-word; max-width: 85%; hyphens: auto;">
+                            {{ ad.title }}
+                        </h2>
+                        <div class="text-muted small mt-2 mt-sm-0"style="font-size: 25px">
+                            <span class="badge bg-secondary">{{ ad.get_category_display }}</span>
+                            <span class="badge bg-light text-dark">{{ ad.get_condition_display }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Изображение с соотношением 4:3 -->
+                    <div class="mb-4" style="border-radius: 20px; overflow: hidden;">
+                        <div style="position: relative; padding-top: 75%;">
+                            {% if ad.image %}
+                                <img src="{{ ad.image.url }}" 
+                                     class="img-fluid w-100" 
+                                     alt="{{ ad.title }}" 
+                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <div class="no-image-placeholder d-flex justify-content-center align-items-center" 
+                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #e9ecef;">
+                                    <i class="fas fa-camera fa-3x" style="color: #6c757d;"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Описание -->
+                    <div class="mb-4">
+                        <h4 style="font-family: 'Arsenal', sans-serif;word-break: break-word; max-width: 85%; hyphens: auto;">Описание</h4>
+                        <p class="card-text" style="font-size: 1.1rem; white-space: pre-line;">{{ ad.description }}</p>
+                    </div>
+                    
+                    <!-- Контактная информация -->
+                    {% if ad.contact_info %}
+                    <div class="mb-4">
+                        <h4 style="font-family: 'Arsenal', sans-serif;">Контакты</h4>
+                        <p style="font-size: 1.1rem;">{{ ad.contact_info }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Автор и дата -->
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="text-muted mb-2 mb-md-0">
+                            <small>Опубликовано: {{ ad.created_at|date:"d.m.Y H:i" }}</small>
+                            {% if ad.created_at != ad.updated_at %}
+                                <br>
+                                <small>Обновлено: {{ ad.updated_at|date:"d.m.Y H:i" }}</small>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span class="text-muted">Автор: {{ ad.author }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кнопки действий -->
+                <div class="card-footer bg-transparent d-flex justify-content-between flex-wrap">
+                    <a href="{% url 'ads:ad_list' %}" class="custom-button-sm">
+                        <i class="fas fa-arrow-left"></i> Назад к списку
+                    </a>
+                    {% if user == ad.author %}
+                        <div>
+                            <a href="{% url 'ads:ad_update' ad.pk %}" class="custom-button-sm">
+                                <i class="fas fa-edit"></i> Редактировать
+                            </a>
+                            <a href="{% url 'ads:ad_delete' ad.pk %}" class="custom-button-sm">
+                                <i class="fas fa-trash"></i> Удалить
+                            </a>
+                        </div>
+                        {% else %}
+                        <a href="{% url 'ads:ad_detail' ad.pk %}" class="custom-button-sm">
+                                <i class="fas fa-trash"></i> Предложить обмен
+                            </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="column right-column"></div>
+
+    <style>
+        .badge {
+            margin-right: 5px;
+            font-weight: normal;
+            font-family: 'Arsenal', sans-serif;
+        }
+
+        .custom-button-sm {
+            display: inline-block;
+            padding: 8px 20px;
+            font-size: 16px;
+            color: dimgray;
+            background-color: #ece3c2;
+            border-radius: 25px;
+            text-decoration: none;
+            border: 1px solid gray;
+            font-family: 'Arsenal', sans-serif;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .custom-button-sm:hover {
+            background-color: #998866;
+            color: white;
+            text-decoration: none;
+        }
+
+        .custom-button-sm i {
+            margin-right: 8px;
+        }
+        
+        body {
+            font-family: 'Arsenal', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            transition: none;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 100% !important;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            
+            .card-title {
+                max-width: 100% !important;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+{% endblock content %}

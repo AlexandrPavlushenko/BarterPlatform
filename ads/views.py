@@ -4,41 +4,84 @@ from django.views.generic import (ListView, DetailView,
                                 DeleteView)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import Ad, ExchangeProposal
 from .forms import AdForm, ProposalForm
+
 
 class AdListView(ListView):
     model = Ad
     template_name = 'ads/ad_list.html'
     context_object_name = 'ads'
-    paginate_by = 10
-    ordering = ['-created_at']
+    paginate_by = 8
+    form_class = AdForm
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        category = self.request.GET.get('category')
-        condition = self.request.GET.get('condition')
-        search = self.request.GET.get('search')
 
+        # Определяем, нужно ли показывать только объявления пользователя
+        show_my_ads = self.request.GET.get('my_ads') == 'true' and self.request.user.is_authenticated
+
+        if show_my_ads:
+            # Показываем только объявления текущего пользователя
+            queryset = queryset.filter(author=self.request.user)
+        else:
+            # В обычном режиме исключаем объявления текущего пользователя
+            if self.request.user.is_authenticated:
+                queryset = queryset.exclude(author=self.request.user)
+
+        # Поиск по ключевым словам
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query)
+            )
+
+        # Фильтрация по категории
+        category = self.request.GET.get('category')
         if category:
             queryset = queryset.filter(category=category)
+
+        # Фильтрация по состоянию
+        condition = self.request.GET.get('condition')
         if condition:
             queryset = queryset.filter(condition=condition)
-        if search:
-            queryset = queryset.filter(
-                Q(title__icontains=search) |
-                Q(description__icontains=search)
-            )
-        return queryset
+
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['selected_category'] = self.request.GET.get('category', '')
+        context['selected_condition'] = self.request.GET.get('condition', '')
+        context['Ad'] = Ad
+        context['show_my_ads'] = self.request.GET.get('my_ads') == 'true'
+        return context
 
 
-from django.views.generic import CreateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from .models import Ad
-from .forms import AdForm
+class AdDetailView(DetailView):
+    """
+    Класс для отображения детальной страницы объявления.
+    Наследуется от Django's DetailView.
+    """
+    model = Ad  # Указываем модель, с которой работаем
+    template_name = 'ads/ad_detail.html'  # Путь к шаблону
+    context_object_name = 'ad'  # Имя переменной в шаблоне
+
+    def get_context_data(self, **kwargs):
+        """
+        Добавляем дополнительные данные в контекст шаблона.
+        """
+        context = super().get_context_data(**kwargs)
+
+        # Добавляем текущего пользователя в контекст
+        context['user'] = self.request.user
+
+        # Можно добавить другие данные, например:
+        # context['related_ads'] = Ad.objects.filter(category=self.object.category).exclude(pk=self.object.pk)[:3]
+
+        return context
 
 class AdCreateView(LoginRequiredMixin, CreateView):
     model = Ad
@@ -56,25 +99,14 @@ class AdUpdateView(LoginRequiredMixin, UpdateView):
     form_class = AdForm
     template_name = 'ads/ad_form.html'
 
-    def dispatch(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if obj.user != self.request.user:
-            return redirect('ad_detail', pk=obj.pk)
-        return super().dispatch(request, *args, **kwargs)
-
     def get_success_url(self):
-        return reverse_lazy('ad_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('ads:ad_list')
 
 class AdDeleteView(LoginRequiredMixin, DeleteView):
     model = Ad
     template_name = 'ads/ad_confirm_delete.html'
-    success_url = reverse_lazy('ad_list')
+    success_url = reverse_lazy('ads:ad_list')
 
-    def dispatch(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if obj.user != self.request.user:
-            return redirect('ad_detail', pk=obj.pk)
-        return super().dispatch(request, *args, **kwargs)
 
 class ProposalCreateView(LoginRequiredMixin, CreateView):
     model = ExchangeProposal

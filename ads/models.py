@@ -19,9 +19,9 @@ class Ad(models.Model):
     ]
 
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
-    title = models.CharField(max_length=200, verbose_name="Заголовок")
-    description = models.TextField(verbose_name="Описание")
-    image = models.ImageField(upload_to='ads/images/', verbose_name="Фото")
+    title = models.CharField(max_length=100, verbose_name="Заголовок")
+    description = models.TextField(max_length=500, verbose_name="Описание")
+    image = models.ImageField(upload_to='ads/images/', null=True, blank=True, verbose_name="Фото")
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, verbose_name="Категория")
     condition = models.CharField(max_length=50, choices=CONDITION_CHOICES, verbose_name="Состояние")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
