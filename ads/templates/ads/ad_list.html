@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load ad_tags %}
 
 {% block title %}{% if show_my_ads %}Мои объявления{% else %}Все объявления{% endif %}{% endblock title %}
 
@@ -67,11 +68,8 @@
                         </div>
                         <div class="col-12">
                             <button type="submit" class="custom-button-sm">Применить</button>
-                            <a href="
-                                    
-                                    
-                                    
-                                    {% if show_my_ads %}{% url 'ads:ad_list' %}?my_ads=true{% else %}{% url 'ads:ad_list' %}{% endif %}"
+                            <a href=
+                                       {% if show_my_ads %}{% url 'ads:ad_list' %}?my_ads=true{% else %}{% url 'ads:ad_list' %}{% endif %}"
                                class="custom-button-sm">Сбросить</a>
                         </div>
                     </form>
@@ -95,12 +93,41 @@
                                 {% endif %}
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title" style="font-family: 'Arsenal', sans-serif;">{{ ad.title }}</h5>
-                                <p class="card-text text-muted small" style="font-family: 'Arsenal', sans-serif; font-size: 16px">
-                                    <span class="badge bg-secondary">{{ ad.get_category_display }}</span>
-                                    <span class="badge bg-light text-dark">{{ ad.get_condition_display }}</span>
-                                </p>
-                            </div>
+    <h5 class="card-title" style="font-family: 'Arsenal', sans-serif;">{{ ad.title }}</h5>
+    <p class="card-text text-muted small d-flex justify-content-between align-items-center" 
+       style="font-family: 'Arsenal', sans-serif; font-size: 16px">
+        <span>
+            <span class="badge bg-secondary">{{ ad.get_category_display }}</span>
+            <span class="badge bg-light text-dark">{{ ad.get_condition_display }}</span>
+        </span>
+        
+        <span>
+            {% if request.user.is_authenticated %}
+                {# Бейдж для исходящих предложений #}
+                {% get_user_proposal ad request.user as user_proposal %}
+                {% if user_proposal %}
+                    <span class="badge 
+                        {% if user_proposal.status == 'pending' %}bg-warning text-dark
+                        {% elif user_proposal.status == 'accepted' %}bg-success
+                        {% elif user_proposal.status == 'rejected' %}bg-danger
+                        {% endif %}">
+                        {{ user_proposal.get_status_display }}
+                    </span>
+                {% endif %}
+                
+                {# Бейдж для входящих предложений #}
+                {% if ad.author == request.user %}
+                    {% incoming_proposals_count ad request.user as incoming_count %}
+                    {% if incoming_count > 0 %}
+                        <span class="badge bg-primary">
+                            Есть обмен ({{ incoming_count }})
+                        </span>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </span>
+    </p>
+</div>
                             <div class="card-footer bg-transparent">
                                 <a href="{% url 'ads:ad_detail' ad.pk %}" class="custom-button-sm w-100 text-center">
                                     Подробнее
@@ -134,8 +161,6 @@
                                     <a class="page-link pagination-btn"
                                        href="?page=
                                                
-                                               
-                                               
                                                {{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_condition %}&condition={{ selected_condition }}{% endif %}{% if show_my_ads %}&my_ads=true{% endif %}">
                                         Назад
                                     </a>
@@ -152,9 +177,6 @@
                                 <li class="page-item">
                                     <a class="page-link pagination-btn"
                                        href="?page=
-                                               
-                                               
-                                               
                                                {{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_condition %}&condition={{ selected_condition }}{% endif %}{% if show_my_ads %}&my_ads=true{% endif %}">
                                         Вперед
                                     </a>
@@ -162,9 +184,6 @@
                                 <li class="page-item">
                                     <a class="page-link pagination-btn"
                                        href="?page=
-                                               
-                                               
-                                               
                                                {{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_condition %}&condition={{ selected_condition }}{% endif %}{% if show_my_ads %}&my_ads=true{% endif %}">
                                         Последняя &raquo;
                                     </a>
@@ -246,11 +265,7 @@
             text-overflow: ellipsis;
         }
 
-        .badge {
-            margin-right: 5px;
-            font-weight: normal;
-            font-family: 'Arsenal', sans-serif;
-        }
+      
 
         .form-select {
             border: 1px solid #ced4da;

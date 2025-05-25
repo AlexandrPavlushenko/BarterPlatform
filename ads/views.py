@@ -128,7 +128,6 @@ class ExchangeProposalCreateView(LoginRequiredMixin, CreateView):
 
         # Проверяем, не отправлял ли уже пользователь предложение (теперь проверяем по полю ad)
         if ExchangeProposal.objects.filter(ad_sender=self.request.user, ad=ad).exists():
-            messages.error(self.request, "Вы уже отправляли предложение обмена для этого объявления.")
             return super().form_invalid(form)
 
         # Сохраняем предложение
@@ -137,8 +136,7 @@ class ExchangeProposalCreateView(LoginRequiredMixin, CreateView):
         proposal.receiver_user = ad.author  # Автор объявления
         proposal.ad = ad  # Само объявление
         proposal.save()
-        print(proposal.ad_sender, proposal.receiver_user)
-        messages.success(self.request, "Ваше предложение обмена успешно отправлено!")
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):

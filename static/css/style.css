@@ -183,21 +183,29 @@ body {
 
 
 .custom-button-sm {
-            display: inline-block;
-            padding: 5px 15px;
-            font-size: 16px;
-            color: dimgray;
-            background-color: #ece3c2;
-            border-radius: 25px;
-            text-decoration: none;
-            border: 1px solid gray;
-            font-family: 'Arsenal', sans-serif;
-            transition: all 0.3s ease;
-        }
+    display: inline-block;
+    padding: 5px 15px;
+    font-size: 16px;
+    color: dimgray;
+    background-color: #ece3c2;
+    border-radius: 25px;
+    text-decoration: none;
+    border: 1px solid gray;
+    font-family: 'Arsenal', sans-serif;
+    transition: all 0.3s ease;
+}
 
-        .custom-button-sm:hover {
-            background-color: #998866;
-            color: white;
-        }
+.custom-button-sm:hover {
+    background-color: #998866;
+    color: white;
+}
+
+.badge {
+    margin-right: 5px;
+    font-weight: initial;
+    font-family: 'Arsenal', sans-serif;
+    font-size: 0.8rem; /* Увеличиваем размер шрифта */
+    line-height: 1; /* Опционально - контроль высоты строки */
+}
 
 

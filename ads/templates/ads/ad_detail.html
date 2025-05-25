@@ -144,10 +144,10 @@
                                 
                                 {% if proposal.status == 'pending' %}
                                     <div class="mt-2 d-flex justify-content-end gap-2">
-                                        <a href="{% url 'ads:proposal_accept' proposal.id %}" class="btn btn-success btn-sm">
+                                        <a href="{% url 'ads:ad_detail' proposal.id %}" class="custom-button-sm">
                                             <i class="fas fa-check"></i> Принять
                                         </a>
-                                        <a href="{% url 'ads:proposal_reject' proposal.id %}" class="btn btn-danger btn-sm">
+                                        <a href="{% url 'ads:ad_detail' proposal.id %}" class="custom-button-sm">
                                             <i class="fas fa-times"></i> Отклонить
                                         </a>
                                     </div>
@@ -239,11 +239,6 @@
     </div>
 
     <style>
-        .badge {
-            margin-right: 5px;
-            font-weight: normal;
-            font-family: 'Arsenal', sans-serif;
-        }
 
         .custom-button-sm {
             display: inline-block;
@@ -318,10 +313,6 @@
         #char-counter {
             margin-left: 5px;
             font-size: 0.9rem;
-        }
-
-        .is-invalid {
-            border-color: #dc3545 !important;
         }
 
         .text-danger {
