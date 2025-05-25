@@ -12,46 +12,40 @@
                 <div class="card-body">
                     <!-- Заголовок и информация -->
                     <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap">
-                        <h2 class="card-title" style="font-family: 'Arsenal', sans-serif; word-break: break-word; max-width: 85%; hyphens: auto;">
+                        <h2 class="card-title"
+                            style="font-family: 'Arsenal', sans-serif; word-break: break-word; max-width: 85%; hyphens: auto;">
                             {{ ad.title }}
                         </h2>
-                        <div class="text-muted small mt-2 mt-sm-0"style="font-size: 25px">
+                        <div class="text-muted small mt-2 mt-sm-0" style="font-size: 25px">
                             <span class="badge bg-secondary">{{ ad.get_category_display }}</span>
                             <span class="badge bg-light text-dark">{{ ad.get_condition_display }}</span>
                         </div>
                     </div>
-                    
-                    <!-- Изображение с соотношением 4:3 -->
+
+                    <!-- Изображение -->
                     <div class="mb-4" style="border-radius: 20px; overflow: hidden;">
                         <div style="position: relative; padding-top: 75%;">
                             {% if ad.image %}
-                                <img src="{{ ad.image.url }}" 
-                                     class="img-fluid w-100" 
-                                     alt="{{ ad.title }}" 
+                                <img src="{{ ad.image.url }}"
+                                     class="img-fluid w-100"
+                                     alt="{{ ad.title }}"
                                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
                             {% else %}
-                                <div class="no-image-placeholder d-flex justify-content-center align-items-center" 
+                                <div class="no-image-placeholder d-flex justify-content-center align-items-center"
                                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #e9ecef;">
                                     <i class="fas fa-camera fa-3x" style="color: #6c757d;"></i>
                                 </div>
                             {% endif %}
                         </div>
                     </div>
-                    
+
                     <!-- Описание -->
                     <div class="mb-4">
-                        <h4 style="font-family: 'Arsenal', sans-serif;word-break: break-word; max-width: 85%; hyphens: auto;">Описание</h4>
+                        <h4 style="font-family: 'Arsenal', sans-serif;word-break: break-word; max-width: 85%; hyphens: auto;">
+                            Описание</h4>
                         <p class="card-text" style="font-size: 1.1rem; white-space: pre-line;">{{ ad.description }}</p>
                     </div>
-                    
-                    <!-- Контактная информация -->
-                    {% if ad.contact_info %}
-                    <div class="mb-4">
-                        <h4 style="font-family: 'Arsenal', sans-serif;">Контакты</h4>
-                        <p style="font-size: 1.1rem;">{{ ad.contact_info }}</p>
-                    </div>
-                    {% endif %}
-                    
+
                     <!-- Автор и дата -->
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div class="text-muted mb-2 mb-md-0">
@@ -66,7 +60,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Кнопки действий -->
                 <div class="card-footer bg-transparent d-flex justify-content-between flex-wrap">
                     <a href="{% url 'ads:ad_list' %}" class="custom-button-sm">
@@ -81,17 +75,113 @@
                                 <i class="fas fa-trash"></i> Удалить
                             </a>
                         </div>
-                        {% else %}
-                        <a href="{% url 'ads:ad_detail' ad.pk %}" class="custom-button-sm">
-                                <i class="fas fa-trash"></i> Предложить обмен
-                            </a>
+                    {% else %}
+                        <button type="button" class="custom-button-sm" data-bs-toggle="modal"
+                                data-bs-target="#exchangeModal">
+                            <i class="fas fa-exchange-alt"></i> Предложить обмен
+                        </button>
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Блок с существующими предложениями обмена -->
+            {% if user.is_authenticated and exchange_proposals %}
+                <div class="card mb-4" style="background-color: rgba(255, 255, 255, 0.8); border-radius: 20px;">
+                    <div class="card-body">
+                        <h4 style="font-family: 'Arsenal', sans-serif;">
+                            {% if user == ad.author %}
+                                Предложения обмена для вашего объявления
+                            {% else %}
+                                Ваши предложения обмена
+                            {% endif %}
+                        </h4>
+                        {% for proposal in exchange_proposals %}
+                            <div class="mb-3 p-3" style="background-color: #f8f9fa; border-radius: 10px;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        {% if user == ad.author %}
+                                            <strong>От:</strong> {{ proposal.ad_sender }}
+                                        {% else %}
+                                            <strong>Кому:</strong> {{ proposal.receiver_user }}
+                                        {% endif %}
+                                    </div>
+                                    <span class="badge bg-{% if proposal.status == 'pending' %}warning{% elif proposal.status == 'accepted' %}success{% else %}danger{% endif %}">
+                                        {{ proposal.get_status_display }}
+                                    </span>
+                                </div>
+                                {% if proposal.comment %}
+                                    <div class="mt-2">
+                                        <strong>Комментарий:</strong>
+                                        <p>{{ proposal.comment }}</p>
+                                    </div>
+                                {% endif %}
+                                <small class="text-muted">Дата отправки: {{ proposal.created_at|date:"d.m.Y H:i" }}</small>
+                                
+                                {% if user == ad.author and proposal.status == 'pending' %}
+                                    <div class="mt-2 d-flex justify-content-end gap-2">
+                                        <a href="{% url 'ads:proposal_accept' proposal.id %}" class="btn btn-success btn-sm">
+                                            <i class="fas fa-check"></i> Принять
+                                        </a>
+                                        <a href="{% url 'ads:proposal_reject' proposal.id %}" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-times"></i> Отклонить
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
     <div class="column right-column"></div>
 
+    <!-- Модальное окно предложения обмена -->
+    <div class="modal fade" id="exchangeModal" tabindex="-1" aria-labelledby="exchangeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; background-color: rgba(255, 255, 255, 0.9);">
+                <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                    <h5 class="modal-title" id="exchangeModalLabel"
+                        style="font-family: 'Arsenal', sans-serif; font-size: 1.5rem;">
+                        Предложение обмена
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'ads:exchange_create' ad.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <p style="font-size: 1.1rem;">
+                                <strong>От:</strong> {{ user }}<br>
+                                <strong>Кому:</strong> {{ ad.author }}<br>
+                                <strong>Объявление:</strong> {{ ad.title }}
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_comment" class="form-label" style="font-family: 'Arsenal', sans-serif;">
+                                Комментарий <span class="text-danger">*</span>
+                                <span id="char-counter" class="text-muted small">0/500</span>
+                            </label>
+                            <textarea name="comment" class="form-control" id="id_comment" rows="10"
+                                      style="border-radius: 10px; border: 1px solid #ced4da; font-family: 'Arsenal', sans-serif;"
+                                      placeholder="Опишите ваше предложение обмена..."
+                                      maxlength="500" required></textarea>
+                            <div class="invalid-feedback">
+                                Пожалуйста, напишите комментарий (не более 500 символов)
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="custom-button-sm">
+                                <i class="fas fa-paper-plane"></i> Отправить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Остальные стили и скрипты остаются без изменений -->
     <style>
         .badge {
             margin-right: 5px;
@@ -123,7 +213,7 @@
         .custom-button-sm i {
             margin-right: 8px;
         }
-        
+
         body {
             font-family: 'Arsenal', sans-serif;
             background-color: #f8f9fa;
@@ -144,17 +234,68 @@
             line-height: 1.4;
         }
 
+        .modal-content {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-control:focus {
+            border-color: #998866;
+            box-shadow: 0 0 0 0.25rem rgba(153, 136, 102, 0.25);
+        }
+
         @media (max-width: 768px) {
             .container {
                 width: 100% !important;
                 padding-left: 15px;
                 padding-right: 15px;
             }
-            
+
             .card-title {
                 max-width: 100% !important;
                 font-size: 1.5rem;
             }
         }
+
+        #char-counter {
+            margin-left: 5px;
+            font-size: 0.9rem;
+        }
+
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const textarea = document.getElementById('id_comment');
+            const counter = document.getElementById('char-counter');
+            const form = textarea.closest('form');
+
+            // Счетчик символов
+            textarea.addEventListener('input', function () {
+                const currentLength = this.value.length;
+                counter.textContent = `${currentLength}/500`;
+
+                if (currentLength > 500) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Валидация при отправке формы
+            form.addEventListener('submit', function (e) {
+                if (textarea.value.trim() === '' || textarea.value.length > 500) {
+                    e.preventDefault();
+                    textarea.classList.add('is-invalid');
+                    textarea.focus();
+                }
+            });
+        });
+    </script>
 {% endblock content %}

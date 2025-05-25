@@ -1,4 +1,5 @@
-from django.shortcuts import redirect
+from django.contrib import messages
+from django.shortcuts import redirect, get_object_or_404
 from django.views.generic import (ListView, DetailView,
                                 CreateView, UpdateView,
                                 DeleteView)
@@ -6,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.db.models import Q
 from .models import Ad, ExchangeProposal
-from .forms import AdForm, ProposalForm
+from .forms import AdForm, ExchangeProposalForm
 
 
 class AdListView(ListView):
@@ -78,8 +79,20 @@ class AdDetailView(DetailView):
         # Добавляем текущего пользователя в контекст
         context['user'] = self.request.user
 
-        # Можно добавить другие данные, например:
-        # context['related_ads'] = Ad.objects.filter(category=self.object.category).exclude(pk=self.object.pk)[:3]
+        # Обновляем фильтрацию - используем поле ad вместо ad_receiver
+        if self.request.user.is_authenticated:
+            context['exchange_proposals'] = ExchangeProposal.objects.filter(
+                ad=self.object,  # Используем ad вместо ad_receiver
+                ad_sender=self.request.user
+            )
+
+            # Если пользователь - автор объявления, показываем все полученные предложения
+            if self.request.user == self.object.author:
+                context['received_proposals'] = ExchangeProposal.objects.filter(
+                    ad=self.object
+                ).exclude(ad_sender=self.request.user)
+        else:
+            context['exchange_proposals'] = ExchangeProposal.objects.none()
 
         return context
 
@@ -100,7 +113,8 @@ class AdUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'ads/ad_form.html'
 
     def get_success_url(self):
-        return reverse_lazy('ads:ad_list')
+        return reverse_lazy('ads:ad_detail', kwargs={'pk': self.object.pk})
+
 
 class AdDeleteView(LoginRequiredMixin, DeleteView):
     model = Ad
@@ -108,61 +122,50 @@ class AdDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('ads:ad_list')
 
 
-class ProposalCreateView(LoginRequiredMixin, CreateView):
+class ExchangeProposalCreateView(LoginRequiredMixin, CreateView):
     model = ExchangeProposal
-    form_class = ProposalForm
-    template_name = 'ads/proposal_form.html'
+    form_class = ExchangeProposalForm
+    template_name = 'ads/ad_detail.html'
+
+    def get_success_url(self):
+        return reverse_lazy('ads:ad_detail', kwargs={'pk': self.kwargs['ad_id']})
+
+    def form_valid(self, form):
+        ad = get_object_or_404(Ad, pk=self.kwargs['ad_id'])
+
+
+
+        # Проверяем, не отправлял ли уже пользователь предложение (теперь проверяем по полю ad)
+        if ExchangeProposal.objects.filter(ad_sender=self.request.user, ad=ad).exists():
+            messages.error(self.request, "Вы уже отправляли предложение обмена для этого объявления.")
+            return super().form_invalid(form)
+
+        # Сохраняем предложение
+        proposal = form.save(commit=False)
+        proposal.ad_sender = self.request.user
+        proposal.receiver_user = ad.author  # Автор объявления
+        proposal.ad = ad  # Само объявление
+        proposal.save()
+        print(proposal.ad_sender, proposal.receiver_user)
+        messages.success(self.request, "Ваше предложение обмена успешно отправлено!")
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['ad_sender'] = get_object_or_404(Ad, pk=self.kwargs['ad_pk'], user=self.request.user)
-        return context
+        ad = get_object_or_404(Ad, pk=self.kwargs['ad_id'])
+        context['ad'] = ad
 
-    def form_valid(self, form):
-        form.instance.ad_sender = get_object_or_404(Ad, pk=self.kwargs['ad_pk'], user=self.request.user)
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse_lazy('proposal_list')
-
-class ProposalListView(LoginRequiredMixin, ListView):
-    model = ExchangeProposal
-    template_name = 'ads/proposal_list.html'
-    context_object_name = 'proposals'
-    ordering = ['-created_at']
-
-    def get_queryset(self):
-        return ExchangeProposal.objects.filter(
-            Q(ad_sender__user=self.request.user) |
-            Q(ad_receiver__user=self.request.user)
+        # Обновляем фильтрацию по полю ad вместо ad_receiver
+        context['exchange_proposals'] = ExchangeProposal.objects.filter(
+            ad=ad,
+            ad_sender=self.request.user
         )
 
-class ProposalDetailView(LoginRequiredMixin, DetailView):
-    model = ExchangeProposal
-    template_name = 'ads/proposal_detail.html'
-    context_object_name = 'proposal'
+        # Если пользователь - автор объявления, показываем все предложения к этому объявлению
+        if self.request.user == ad.author:
+            context['received_proposals'] = ExchangeProposal.objects.filter(
+                ad=ad
+            ).exclude(ad_sender=self.request.user)
 
-    def dispatch(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if obj.ad_sender.user != request.user and obj.ad_receiver.user != request.user:
-            return redirect('proposal_list')
-        return super().dispatch(request, *args, **kwargs)
+        return context
 
-class ProposalUpdateStatusView(LoginRequiredMixin, UpdateView):
-    model = ExchangeProposal
-    fields = []
-    template_name = 'ads/proposal_detail.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if obj.ad_receiver.user != request.user:
-            return redirect('proposal_detail', pk=obj.pk)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        status = kwargs.get('status')
-        if status in ['accepted', 'rejected']:
-            proposal = self.get_object()
-            proposal.status = status
-            proposal.save()
-        return redirect('proposal_detail', pk=self.get_object().pk)

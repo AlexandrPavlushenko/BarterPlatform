@@ -43,11 +43,43 @@ class ExchangeProposal(models.Model):
         ('rejected', 'Отклонена'),
     ]
 
-    ad_sender = models.ForeignKey(User, related_name='sent_proposals', on_delete=models.CASCADE)
-    ad_receiver = models.ForeignKey(Ad, related_name='received_proposals', on_delete=models.CASCADE)
-    comment = models.TextField(blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    created_at = models.DateTimeField(auto_now_add=True)
+    # Отправитель предложения
+    ad_sender = models.ForeignKey(
+        User,
+        related_name='sent_proposals',
+        on_delete=models.CASCADE,
+        verbose_name="Отправитель"
+    )
+
+    # Автор объявления (получатель предложения)
+    receiver_user = models.ForeignKey(
+        User,
+        related_name='received_proposals',
+        on_delete=models.CASCADE,
+        verbose_name="Получатель",
+        null=True,
+        blank=True
+    )
+
+    # Связанное объявление
+    ad = models.ForeignKey(
+        Ad,
+        related_name='exchange_proposals',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Объявление"
+    )
+
+    comment = models.TextField(max_length=500, verbose_name="Комментарий")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     def __str__(self):
-        return f"Предложение от {self.ad_sender} к {self.ad_receiver.author}"
+        return f"Предложение от {self.ad_sender} к {self.receiver_user} для объявления '{self.ad.title}'"
+
+    class Meta:
+        unique_together = ['ad_sender', 'ad']  # Один пользователь - одно предложение на объявление
+        verbose_name = "Предложение обмена"
+        verbose_name_plural = "Предложения обмена"
+        ordering = ['-created_at']
