@@ -76,34 +76,59 @@
                             </a>
                         </div>
                     {% else %}
-                        <button type="button" class="custom-button-sm" data-bs-toggle="modal"
-                                data-bs-target="#exchangeModal">
-                            <i class="fas fa-exchange-alt"></i> Предложить обмен
-                        </button>
+                        {% if not user_proposal %}
+                            <button type="button" class="custom-button-sm" data-bs-toggle="modal"
+                                    data-bs-target="#exchangeModal">
+                                <i class="fas fa-exchange-alt"></i> Предложить обмен
+                            </button>
+                        {% else %}
+                            <button type="button" class="custom-button-sm" data-bs-toggle="modal"
+                                    data-bs-target="#deleteProposalModal">
+                                <i class="fas fa-trash"></i> Удалить предложение
+                            </button>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Блок с существующими предложениями обмена -->
-            {% if user.is_authenticated and exchange_proposals %}
+            <!-- Блок с предложением текущего пользователя -->
+            {% if user_proposal %}
+                <div class="card mb-4" style="background-color: rgba(255, 255, 255, 0.8); border-radius: 20px;">
+                    <div class="card-body">
+                        <h4 style="font-family: 'Arsenal', sans-serif;">Ваше предложение обмена</h4>
+                        <div class="mb-3 p-3" style="background-color: #f8f9fa; border-radius: 10px;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>Кому:</strong> {{ user_proposal.receiver_user }}
+                                </div>
+                                <span class="badge bg-{% if user_proposal.status == 'pending' %}warning{% elif user_proposal.status == 'accepted' %}success{% else %}danger{% endif %}">
+                                    {{ user_proposal.get_status_display }}
+                                </span>
+                            </div>
+                            {% if user_proposal.comment %}
+                                <div class="mt-2">
+                                    <strong>Комментарий:</strong>
+                                    <p style="white-space: pre-line;">{{ user_proposal.comment }}</p>
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Дата отправки: {{ user_proposal.created_at|date:"d.m.Y H:i" }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Блок с входящими предложениями (только для автора объявления) -->
+            {% if user == ad.author and received_proposals %}
                 <div class="card mb-4" style="background-color: rgba(255, 255, 255, 0.8); border-radius: 20px;">
                     <div class="card-body">
                         <h4 style="font-family: 'Arsenal', sans-serif;">
-                            {% if user == ad.author %}
-                                Предложения обмена для вашего объявления
-                            {% else %}
-                                Ваши предложения обмена
-                            {% endif %}
+                            Предложения обмена для вашего объявления
                         </h4>
-                        {% for proposal in exchange_proposals %}
+                        {% for proposal in received_proposals %}
                             <div class="mb-3 p-3" style="background-color: #f8f9fa; border-radius: 10px;">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
-                                        {% if user == ad.author %}
-                                            <strong>От:</strong> {{ proposal.ad_sender }}
-                                        {% else %}
-                                            <strong>Кому:</strong> {{ proposal.receiver_user }}
-                                        {% endif %}
+                                        <strong>От:</strong> {{ proposal.ad_sender }}
                                     </div>
                                     <span class="badge bg-{% if proposal.status == 'pending' %}warning{% elif proposal.status == 'accepted' %}success{% else %}danger{% endif %}">
                                         {{ proposal.get_status_display }}
@@ -112,12 +137,12 @@
                                 {% if proposal.comment %}
                                     <div class="mt-2">
                                         <strong>Комментарий:</strong>
-                                        <p>{{ proposal.comment }}</p>
+                                        <p style="white-space: pre-line;">{{ proposal.comment }}</p>
                                     </div>
                                 {% endif %}
                                 <small class="text-muted">Дата отправки: {{ proposal.created_at|date:"d.m.Y H:i" }}</small>
                                 
-                                {% if user == ad.author and proposal.status == 'pending' %}
+                                {% if proposal.status == 'pending' %}
                                     <div class="mt-2 d-flex justify-content-end gap-2">
                                         <a href="{% url 'ads:proposal_accept' proposal.id %}" class="btn btn-success btn-sm">
                                             <i class="fas fa-check"></i> Принять
@@ -148,7 +173,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" action="{% url 'ads:exchange_create' ad.pk %}">
+                    <form method="post" action="{% url 'ads:exchange_create' ad.pk %}" id="exchangeForm">
                         {% csrf_token %}
                         <div class="mb-4">
                             <p style="font-size: 1.1rem;">
@@ -171,6 +196,9 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="custom-button-sm me-2" data-bs-dismiss="modal">
+                                Отмена
+                            </button>
                             <button type="submit" class="custom-button-sm">
                                 <i class="fas fa-paper-plane"></i> Отправить
                             </button>
@@ -181,7 +209,35 @@
         </div>
     </div>
 
-    <!-- Остальные стили и скрипты остаются без изменений -->
+    <!-- Модальное окно подтверждения удаления предложения -->
+    <div class="modal fade" id="deleteProposalModal" tabindex="-1" aria-labelledby="deleteProposalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; background-color: rgba(255, 255, 255, 0.9);">
+                <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                    <h5 class="modal-title" id="deleteProposalModalLabel"
+                        style="font-family: 'Arsenal', sans-serif; font-size: 1.5rem;">
+                        Подтверждение удаления
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: 1.1rem;">Вы уверены, что хотите удалить ваше предложение обмена?</p>
+                    <form method="post" action="{% if user_proposal %}{% url 'ads:proposal_delete' user_proposal.id %}{% endif %}" id="deleteProposalForm">
+    {% csrf_token %}
+    <div class="d-flex justify-content-end mt-4">
+        <button type="button" class="custom-button-sm me-2" data-bs-dismiss="modal">
+            Отмена
+        </button>
+        <button type="submit" class="custom-button-sm" {% if not user_proposal %}disabled{% endif %}>
+            <i class="fas fa-trash"></i> Удалить
+        </button>
+    </div>
+</form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
         .badge {
             margin-right: 5px;
@@ -213,6 +269,8 @@
         .custom-button-sm i {
             margin-right: 8px;
         }
+
+    
 
         body {
             font-family: 'Arsenal', sans-serif;
@@ -270,32 +328,31 @@
             color: #dc3545;
         }
     </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Счетчик символов для формы предложения
             const textarea = document.getElementById('id_comment');
             const counter = document.getElementById('char-counter');
-            const form = textarea.closest('form');
+            const exchangeForm = document.getElementById('exchangeForm');
+            
+            if (textarea && counter) {
+                textarea.addEventListener('input', function () {
+                    const currentLength = this.value.length;
+                    counter.textContent = `${currentLength}/500`;
+                    this.classList.toggle('is-invalid', currentLength > 500);
+                });
 
-            // Счетчик символов
-            textarea.addEventListener('input', function () {
-                const currentLength = this.value.length;
-                counter.textContent = `${currentLength}/500`;
-
-                if (currentLength > 500) {
-                    this.classList.add('is-invalid');
-                } else {
-                    this.classList.remove('is-invalid');
+                if (exchangeForm) {
+                    exchangeForm.addEventListener('submit', function (e) {
+                        if (textarea.value.trim() === '' || textarea.value.length > 500) {
+                            e.preventDefault();
+                            textarea.classList.add('is-invalid');
+                            textarea.focus();
+                        }
+                    });
                 }
-            });
-
-            // Валидация при отправке формы
-            form.addEventListener('submit', function (e) {
-                if (textarea.value.trim() === '' || textarea.value.length > 500) {
-                    e.preventDefault();
-                    textarea.classList.add('is-invalid');
-                    textarea.focus();
-                }
-            });
+            }
         });
     </script>
 {% endblock content %}

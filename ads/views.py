@@ -62,37 +62,28 @@ class AdListView(ListView):
 
 
 class AdDetailView(DetailView):
-    """
-    Класс для отображения детальной страницы объявления.
-    Наследуется от Django's DetailView.
-    """
-    model = Ad  # Указываем модель, с которой работаем
-    template_name = 'ads/ad_detail.html'  # Путь к шаблону
-    context_object_name = 'ad'  # Имя переменной в шаблоне
+    model = Ad
+    template_name = 'ads/ad_detail.html'
+    context_object_name = 'ad'
 
     def get_context_data(self, **kwargs):
-        """
-        Добавляем дополнительные данные в контекст шаблона.
-        """
         context = super().get_context_data(**kwargs)
-
-        # Добавляем текущего пользователя в контекст
         context['user'] = self.request.user
 
-        # Обновляем фильтрацию - используем поле ad вместо ad_receiver
         if self.request.user.is_authenticated:
-            context['exchange_proposals'] = ExchangeProposal.objects.filter(
-                ad=self.object,  # Используем ad вместо ad_receiver
+            # Получаем предложение текущего пользователя для этого объявления
+            user_proposal = ExchangeProposal.objects.filter(
+                ad=self.object,
                 ad_sender=self.request.user
-            )
+            ).first()
 
-            # Если пользователь - автор объявления, показываем все полученные предложения
+            context['user_proposal'] = user_proposal
+
+            # Для автора объявления показываем все входящие предложения
             if self.request.user == self.object.author:
                 context['received_proposals'] = ExchangeProposal.objects.filter(
                     ad=self.object
                 ).exclude(ad_sender=self.request.user)
-        else:
-            context['exchange_proposals'] = ExchangeProposal.objects.none()
 
         return context
 
@@ -168,4 +159,12 @@ class ExchangeProposalCreateView(LoginRequiredMixin, CreateView):
             ).exclude(ad_sender=self.request.user)
 
         return context
+
+
+class ExchangeProposalDeleteView(LoginRequiredMixin, DeleteView):
+    model = ExchangeProposal
+    success_url = reverse_lazy('ads:ad_list')
+
+    def get_queryset(self):
+        return super().get_queryset().filter(ad_sender=self.request.user)
 
