@@ -119,44 +119,50 @@
 
             <!-- Блок с входящими предложениями (только для автора объявления) -->
             {% if user == ad.author and received_proposals %}
-                <div class="card mb-4" style="background-color: rgba(255, 255, 255, 0.8); border-radius: 20px;">
-                    <div class="card-body">
-                        <h4 style="font-family: 'Arsenal', sans-serif;">
-                            Предложения обмена для вашего объявления
-                        </h4>
-                        {% for proposal in received_proposals %}
-                            <div class="mb-3 p-3" style="background-color: #f8f9fa; border-radius: 10px;">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <strong>От:</strong> {{ proposal.ad_sender }}
-                                    </div>
-                                    <span class="badge bg-{% if proposal.status == 'pending' %}warning{% elif proposal.status == 'accepted' %}success{% else %}danger{% endif %}">
-                                        {{ proposal.get_status_display }}
-                                    </span>
-                                </div>
-                                {% if proposal.comment %}
-                                    <div class="mt-2">
-                                        <strong>Комментарий:</strong>
-                                        <p style="white-space: pre-line;">{{ proposal.comment }}</p>
-                                    </div>
-                                {% endif %}
-                                <small class="text-muted">Дата отправки: {{ proposal.created_at|date:"d.m.Y H:i" }}</small>
-                                
-                                {% if proposal.status == 'pending' %}
-                                    <div class="mt-2 d-flex justify-content-end gap-2">
-                                        <a href="{% url 'ads:ad_detail' proposal.id %}" class="custom-button-sm">
-                                            <i class="fas fa-check"></i> Принять
-                                        </a>
-                                        <a href="{% url 'ads:ad_detail' proposal.id %}" class="custom-button-sm">
-                                            <i class="fas fa-times"></i> Отклонить
-                                        </a>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
+    <div class="card mb-4" style="background-color: rgba(255, 255, 255, 0.8); border-radius: 20px;">
+        <div class="card-body">
+            <h4 style="font-family: 'Arsenal', sans-serif;">
+                Предложения обмена для вашего объявления
+            </h4>
+            {% for proposal in received_proposals %}
+                <div class="mb-3 p-3" style="background-color: #f8f9fa; border-radius: 10px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>От:</strong> {{ proposal.ad_sender }}
+                        </div>
+                        <span class="badge bg-{% if proposal.status == 'pending' %}warning{% elif proposal.status == 'accepted' %}success{% else %}danger{% endif %}">
+                            {{ proposal.get_status_display }}
+                        </span>
                     </div>
+                    {% if proposal.comment %}
+                        <div class="mt-2">
+                            <strong>Комментарий:</strong>
+                            <p style="white-space: pre-line;">{{ proposal.comment }}</p>
+                        </div>
+                    {% endif %}
+                    <small class="text-muted">Дата отправки: {{ proposal.created_at|date:"d.m.Y H:i" }}</small>
+                    
+                    {% if proposal.status == 'pending' %}
+                        <div class="mt-2 d-flex justify-content-end gap-2">
+                            <form method="post" action="{% url 'ads:accept_proposal' proposal.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="custom-button-sm">
+                                    <i class="fas fa-check"></i> Принять
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'ads:reject_proposal' proposal.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="custom-button-sm">
+                                    <i class="fas fa-times"></i> Отклонить
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
                 </div>
-            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
         </div>
     </div>
     <div class="column right-column"></div>

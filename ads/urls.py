@@ -2,7 +2,7 @@ from django.urls import path
 
 from .apps import AdsConfig
 from .views import (AdListView, AdCreateView, AdDetailView, AdUpdateView, AdDeleteView, ExchangeProposalCreateView,
-                    ExchangeProposalDeleteView)
+                    ExchangeProposalDeleteView, AcceptProposalView, RejectProposalView)
 
 app_name = AdsConfig.name
 
@@ -14,5 +14,6 @@ urlpatterns = [
     path('<int:pk>/delete/', AdDeleteView.as_view(), name='ad_delete'),
     path('ad/<int:ad_id>/exchange/', ExchangeProposalCreateView.as_view(), name='exchange_create'),
     path('proposal/delete/<int:pk>/', ExchangeProposalDeleteView.as_view(), name='proposal_delete'),
-    # path('proposals/<int:pk>/<str:status>/', ProposalUpdateStatusView.as_view(), name='proposal_update_status'),
+    path('proposal/<int:pk>/accept/', AcceptProposalView.as_view(), name='accept_proposal'),
+    path('proposal/<int:pk>/reject/', RejectProposalView.as_view(), name='reject_proposal'),
 ]

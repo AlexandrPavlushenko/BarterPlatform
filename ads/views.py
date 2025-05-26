@@ -1,8 +1,7 @@
-from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import (ListView, DetailView,
-                                CreateView, UpdateView,
-                                DeleteView)
+                                  CreateView, UpdateView,
+                                  DeleteView, View)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.db.models import Q
@@ -87,6 +86,7 @@ class AdDetailView(DetailView):
 
         return context
 
+
 class AdCreateView(LoginRequiredMixin, CreateView):
     model = Ad
     form_class = AdForm
@@ -123,8 +123,6 @@ class ExchangeProposalCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         ad = get_object_or_404(Ad, pk=self.kwargs['ad_id'])
-
-
 
         # Проверяем, не отправлял ли уже пользователь предложение (теперь проверяем по полю ad)
         if ExchangeProposal.objects.filter(ad_sender=self.request.user, ad=ad).exists():
@@ -166,3 +164,39 @@ class ExchangeProposalDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return super().get_queryset().filter(ad_sender=self.request.user)
 
+
+class AcceptProposalView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        proposal = get_object_or_404(ExchangeProposal, pk=pk)
+
+        # Проверяем, что текущий пользователь - автор объявления
+        if request.user != proposal.ad.author:
+            return redirect('ads:ad_detail', pk=proposal.ad.pk)
+
+        # Меняем статус текущего предложения на "принято"
+        proposal.status = 'accepted'
+        proposal.save()
+
+        # Все остальные предложения для этого объявления помечаем как отклоненные
+        ExchangeProposal.objects.filter(
+            ad=proposal.ad
+        ).exclude(
+            pk=proposal.pk
+        ).update(status='rejected')
+
+        return redirect('ads:ad_detail', pk=proposal.ad.pk)
+
+
+class RejectProposalView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        proposal = get_object_or_404(ExchangeProposal, pk=pk)
+
+        # Проверяем, что текущий пользователь - автор объявления
+        if request.user != proposal.ad.author:
+            return redirect('ads:ad_detail', pk=proposal.ad.pk)
+
+        # Меняем статус предложения на "отклонено"
+        proposal.status = 'rejected'
+        proposal.save()
+
+        return redirect('ads:ad_detail', pk=proposal.ad.pk)
