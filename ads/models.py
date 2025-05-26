@@ -1,8 +1,6 @@
 from django.conf import settings
 from django.db import models
 
-User = settings.AUTH_USER_MODEL
-
 
 class Ad(models.Model):
     CONDITION_CHOICES = [
@@ -13,12 +11,14 @@ class Ad(models.Model):
     CATEGORY_CHOICES = [
         ("electronics", "Электроника"),
         ("clothing", "Одежда"),
-        ("books", "Книги"),
+        ("books", "Книги"),  # Добавить категории при необходимости #
         ("furniture", "Мебель"),
         ("other", "Другое"),
     ]
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Автор"
+    )
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     description = models.TextField(max_length=500, verbose_name="Описание")
     image = models.ImageField(
@@ -51,7 +51,7 @@ class ExchangeProposal(models.Model):
 
     # Отправитель предложения
     ad_sender = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         related_name="sent_proposals",
         on_delete=models.CASCADE,
         verbose_name="Отправитель",
@@ -59,7 +59,7 @@ class ExchangeProposal(models.Model):
 
     # Автор объявления (получатель предложения)
     receiver_user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         related_name="received_proposals",
         on_delete=models.CASCADE,
         verbose_name="Получатель",

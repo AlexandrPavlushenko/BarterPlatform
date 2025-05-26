@@ -24,6 +24,7 @@ urlpatterns = [
     path("", include("main.urls", namespace="main")),
     path("", include("users.urls", namespace="users")),
     path("", include("ads.urls", namespace="ads")),
+    path("api/", include("api.urls", namespace="api")),
     path(
         "swagger/",
         schema_view.with_ui("swagger", cache_timeout=0),

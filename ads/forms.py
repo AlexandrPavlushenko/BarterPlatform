@@ -15,13 +15,13 @@ class AdForm(forms.ModelForm):
     def clean_title(self):
         title = self.cleaned_data["title"]
         if len(title) > 100:
-            raise forms.ValidationError("Заголовок не должен превышать 49 символов")
+            raise forms.ValidationError("Заголовок не должен превышать 100 символов")
         return title
 
     def clean_description(self):
         description = self.cleaned_data["description"]
         if len(description) > 500:
-            raise forms.ValidationError("Описание не должно превышать 199 символов")
+            raise forms.ValidationError("Описание не должно превышать 500 символов")
         return description
 
 
@@ -31,7 +31,7 @@ class ExchangeProposalForm(forms.ModelForm):
             attrs={
                 "class": "form-control",
                 "rows": 10,
-                "style": "border-radius: 10px; border: 1px solid #ced4da;",
+                "style": "border-radius: 20px; border: 1px solid #ced4da;",
                 "placeholder": "Опишите ваше предложение обмена...",
                 "maxlength": "500",
             }
