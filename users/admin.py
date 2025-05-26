@@ -13,8 +13,7 @@ class UserAdmin(admin.ModelAdmin):
         "phone",
         "avatar",
         "city",
-        "is_active"
+        "is_active",
     )
-    list_editable = (
-        "is_active",)
+    list_editable = ("is_active",)
     search_fields = ("email", "last_name")

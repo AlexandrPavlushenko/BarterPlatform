@@ -1,5 +1,3 @@
-import random
-
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import generic

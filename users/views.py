@@ -1,7 +1,10 @@
+from django import forms
 from django.conf import settings
-
+from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.tokens import default_token_generator
-
+from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.http import HttpResponseRedirect
@@ -10,43 +13,34 @@ from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.translation import gettext_lazy as _
 from django.views import generic
 
 from .forms import UserProfileForm, UserRegisterForm
 from .models import User
 
-from django.contrib.auth.views import LoginView
-from django.contrib import messages
-
-from django import forms
-from django.contrib.auth.forms import AuthenticationForm, get_user_model
-from django.contrib.auth import authenticate
-from django.utils.translation import gettext_lazy as _
-
-User = get_user_model()
-
 
 class CustomAuthenticationForm(AuthenticationForm):
     error_messages = {
-        'invalid_login': _('Неверная почта или пароль.'),
-        'inactive': _('Ваш аккаунт деактивирован. Обратитесь к администратору.'),
-        'missing_fields': _('Пожалуйста, заполните оба поля.'),
+        "invalid_login": _("Неверная почта или пароль."),
+        "inactive": _("Ваш аккаунт деактивирован. Обратитесь к администратору."),
+        "missing_fields": _("Пожалуйста, заполните оба поля."),
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].label = 'Email'
-        self.fields['password'].label = 'Пароль'
+        self.fields["username"].label = "Email"
+        self.fields["password"].label = "Пароль"
 
     def clean(self):
-        email = self.cleaned_data.get('username')
-        password = self.cleaned_data.get('password')
+        email = self.cleaned_data.get("username")
+        password = self.cleaned_data.get("password")
 
         # Проверка заполнения обоих полей
         if not email or not password:
             raise forms.ValidationError(
-                self.error_messages['missing_fields'],
-                code='missing_fields',
+                self.error_messages["missing_fields"],
+                code="missing_fields",
             )
 
         if email and password:
@@ -55,26 +49,24 @@ class CustomAuthenticationForm(AuthenticationForm):
 
                 if not user.is_active:
                     raise forms.ValidationError(
-                        self.error_messages['inactive'],
-                        code='inactive',
+                        self.error_messages["inactive"],
+                        code="inactive",
                     )
 
                 self.user_cache = authenticate(
-                    self.request,
-                    email=email,
-                    password=password
+                    self.request, email=email, password=password
                 )
 
                 if self.user_cache is None:
                     raise forms.ValidationError(
-                        self.error_messages['invalid_login'],
-                        code='invalid_login',
+                        self.error_messages["invalid_login"],
+                        code="invalid_login",
                     )
 
             except User.DoesNotExist:
                 raise forms.ValidationError(
-                    self.error_messages['invalid_login'],
-                    code='invalid_login',
+                    self.error_messages["invalid_login"],
+                    code="invalid_login",
                 )
 
         return self.cleaned_data
@@ -89,7 +81,7 @@ class CustomLoginView(LoginView):
         storage = messages.get_messages(self.request)
         storage.used = False
 
-        for error in form.errors.get('__all__', []):
+        for error in form.errors.get("__all__", []):
             messages.error(self.request, str(error))
 
         return super().form_invalid(form)

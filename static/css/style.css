@@ -26,22 +26,6 @@
     -webkit-text-fill-color: transparent;
 }
 
-.custom-button {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 20px;
-    color: dimgray;
-    background-color: #ece3c2;
-    border-radius: 25px;
-    text-decoration: none;
-    border: 1px solid gray;
-}
-
-.custom-button:hover {
-    background-color: #998866;
-    color: white;
-}
-
 .middle-column {
     flex: 8;
     background-image: url("../img/bg.jpg");
@@ -128,13 +112,12 @@ body {
     color: gray;
 }
 
-
 .form-control:focus {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
 .forgot-password-link {
-    font-size: 18px;
+    font-size: 16px;
     color: #998866;
     text-decoration: none;
 }
@@ -181,25 +164,6 @@ body {
     width: 100%;
 }
 
-
-.custom-button-sm {
-    display: inline-block;
-    padding: 5px 15px;
-    font-size: 16px;
-    color: dimgray;
-    background-color: #ece3c2;
-    border-radius: 25px;
-    text-decoration: none;
-    border: 1px solid gray;
-    font-family: 'Arsenal', sans-serif;
-    transition: all 0.3s ease;
-}
-
-.custom-button-sm:hover {
-    background-color: #998866;
-    color: white;
-}
-
 .badge {
     margin-right: 5px;
     font-weight: initial;
@@ -208,4 +172,290 @@ body {
     line-height: 1; /* Опционально - контроль высоты строки */
 }
 
+.custom-button-sm {
+    display: inline-block;
+    padding: 8px 20px;
+    font-size: 16px;
+    color: dimgray;
+    background-color: #ece3c2;
+    border-radius: 25px;
+    text-decoration: none;
+    border: 1px solid gray;
+    font-family: 'Arsenal', sans-serif;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
 
+.custom-button-sm:hover {
+    background-color: #998866;
+    color: white;
+    text-decoration: none;
+}
+
+.card {
+    transition: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 1);
+}
+
+.card-title {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.4;
+}
+
+.modal-content {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.form-control:focus {
+    border-color: #998866;
+    box-shadow: 0 0 0 0.25rem rgba(153, 136, 102, 0.25);
+}
+
+
+#char-counter {
+    margin-left: 5px;
+    font-size: 0.9rem;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+.pagination-btn {
+    padding: 8px 16px;
+    margin: 0 4px;
+    background-color: #ece3c2;
+    color: dimgray;
+    border: 1px solid gray;
+    border-radius: 20px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover {
+    background-color: #998866;
+    color: white;
+    text-decoration: none;
+}
+
+.pagination-info {
+    padding: 8px 16px;
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.page-item.disabled .pagination-info {
+    background-color: transparent;
+}
+
+.ad-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 75%; /* 4:3 соотношение */
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+.ad-image, .no-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+.form-select {
+    border: 1px solid #ced4da;
+}
+
+.page-link {
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.image-upload-container {
+    margin: 0 auto;
+    max-width: 300px;
+}
+
+/* Контейнер с пропорциями 4:3 */
+.ratio-4-3 {
+    position: relative;
+    width: 100%;
+    padding-top: 75%;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    border: 1px dashed #ddd;
+}
+
+.img-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+
+.no-image-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e9ecef;
+    color: #6c757d;
+    font-size: 2rem;
+}
+
+.upload-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    color: dimgray;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: Arsenal, sans-serif;
+    font-size: 16px;
+}
+
+.upload-btn:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+#remove-image-btn {
+    font-family: Arsenal, sans-serif;
+    border-radius: 25px;
+}
+
+.image-upload-container {
+    margin: 0 auto;
+    max-width: 300px;
+}
+
+.image-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+}
+
+.img-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #9e9e9f;
+    font-size: 3rem;
+}
+
+
+#remove-avatar-btn {
+    font-family: Arsenal, sans-serif;
+    border-radius: 25px;
+}
+
+     .image-upload-container {
+            margin: 0 auto;
+            max-width: 300px;
+        }
+
+        /* Контейнер с пропорциями 4:3 */
+        .ratio-4-3 {
+            position: relative;
+            width: 100%;
+            padding-top: 75%; /* 3/4 = 0.75 */
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px dashed #ddd;
+        }
+
+        .img-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .no-image-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: #f8f9fa;
+            color: dimgray;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: Arsenal, sans-serif;
+            font-size: 16px;
+        }
+
+        .upload-btn:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        #remove-image-btn {
+            font-family: Arsenal, sans-serif;
+            border-radius: 25px;
+        }
+
+
+
+        .forgot-password-link {
+            color: dimgray;
+            text-decoration: none;
+        }
+
+        .forgot-password-link:hover {
+            text-decoration: underline;
+        }

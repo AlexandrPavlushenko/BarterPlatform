@@ -18,7 +18,7 @@
         </a>
         <ul class="navbar-nav flex-grow-1">
             {% if user.is_authenticated %}
-                <!-- Новое выпадающее меню для объявлений -->
+                <!-- Выпадающее меню для объявлений -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="adsDropdown" role="button" 
                        data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px">
@@ -30,16 +30,18 @@
                                 Создать объявление
                             </a>
                         </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'ads:ad_list' %}" style="font-size: 18px">
+                                Объявления других пользователей
+                            </a>
+                        </li>
                         <li>
                             <a class="dropdown-item" href="{% url 'ads:ad_list' %}?my_ads=true" style="font-size: 18px">
                                 Мои объявления
                             </a>
                         </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'ads:ad_list' %}" style="font-size: 18px">
-                                Объявления об обмене
-                            </a>
-                        </li>
+                        
                     </ul>
                 </li>
             {% endif %}
