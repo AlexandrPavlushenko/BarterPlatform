@@ -1,4 +1,4 @@
-# dev
+# Основные библиотеки
 Django==5.2.1
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
@@ -6,16 +6,15 @@ pillow==11.2.1
 psycopg2-binary==2.9.10
 python-dotenv==1.1.0
 
-# lint
+# Линтеры и форматеры
 flake8==7.2.0
 isort==6.0.1
-mypy==1.15.0
 
-# test
+# Тесты
 pytest==8.3.5
 coverage==7.8.2
 pytest-cov==6.1.1
 Faker==37.3.0
 
-# doc
+# Документирование
 drf-yasg==1.21.10

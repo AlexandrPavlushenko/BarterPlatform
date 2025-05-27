@@ -8,7 +8,16 @@ User = get_user_model()
 
 @pytest.mark.django_db
 class TestAuthAPI:
+    """Тесты для API аутентификации и регистрации пользователей."""
+
     def test_user_registration(self, api_client):
+        """Тест регистрации нового пользователя.
+
+        Проверяет:
+        - Успешное создание пользователя (код 201)
+        - Наличие пользователя в базе данных после регистрации
+        - Корректность переданных данных
+        """
         url = reverse("api:user_register")
         data = {
             "email": "new@example.com",
@@ -22,6 +31,13 @@ class TestAuthAPI:
         assert User.objects.filter(email="new@example.com").exists()
 
     def test_token_obtain(self, api_client, test_user):
+        """Тест получения JWT токена для аутентификации.
+
+        Проверяет:
+        - Успешное получение токенов (код 200)
+        - Наличие access-токена в ответе
+        - Наличие refresh-токена в ответе
+        """
         url = reverse("api:token_obtain_pair")
         data = {"email": "test@example.com", "password": "testpass123"}
         response = api_client.post(url, data)

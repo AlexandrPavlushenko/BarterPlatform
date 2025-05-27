@@ -1,35 +1,54 @@
-from rest_framework import generics, permissions, serializers
-from rest_framework.exceptions import ValidationError
-
-from rest_framework_simplejwt.views import TokenObtainPairView
-from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from .permissions import IsOwnerOnly
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, permissions, serializers
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from ads.models import Ad, ExchangeProposal
-from .serializers import (
-    CustomTokenObtainPairSerializer,
-    UserRegisterSerializer,
-    AdSerializer,
-    ExchangeProposalSerializer,
-    ExchangeProposalUpdateSerializer,
-)
+
 from .paginators import StandardResultsSetPagination
+from .permissions import IsOwnerOnly
+from .serializers import (AdSerializer, CustomTokenObtainPairSerializer,
+                          ExchangeProposalSerializer,
+                          ExchangeProposalUpdateSerializer,
+                          UserRegisterSerializer)
 
 User = get_user_model()
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
+    """Кастомное представление для получения JWT токенов.
+
+    Использует CustomTokenObtainPairSerializer для добавления
+    дополнительных полей пользователя в токен.
+    """
+
     serializer_class = CustomTokenObtainPairSerializer
 
 
 class UserRegisterView(generics.CreateAPIView):
+    """Представление для регистрации новых пользователей.
+
+    Разрешает доступ без аутентификации.
+    Использует UserRegisterSerializer для валидации данных.
+    """
+
     serializer_class = UserRegisterSerializer
     permission_classes = [permissions.AllowAny]
 
 
 class AdListView(generics.ListAPIView):
+    """Представление для получения списка объявлений с фильтрацией.
+
+    Поддерживает:
+    - Пагинацию (StandardResultsSetPagination)
+    - Фильтрацию по параметрам:
+      * my_ads - показывать только свои объявления
+      * search - поиск по заголовку и описанию
+      * category - фильтр по категории
+      * condition - фильтр по состоянию
+    """
+
     serializer_class = AdSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     pagination_class = StandardResultsSetPagination
@@ -63,12 +82,20 @@ class AdListView(generics.ListAPIView):
 
 
 class AdDetailView(generics.RetrieveAPIView):
+    """Представление для просмотра деталей объявления."""
+
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class AdCreateView(generics.CreateAPIView):
+    """Представление для создания нового объявления.
+
+    Автоматически устанавливает текущего пользователя как автора.
+    Требует аутентификации.
+    """
+
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -78,6 +105,12 @@ class AdCreateView(generics.CreateAPIView):
 
 
 class AdUpdateView(generics.UpdateAPIView):
+    """Представление для обновления объявления.
+
+    Разрешает редактирование только владельцу объявления.
+    Использует permission IsOwnerOnly.
+    """
+
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOnly]
@@ -92,6 +125,11 @@ class AdUpdateView(generics.UpdateAPIView):
 
 
 class AdDeleteView(generics.DestroyAPIView):
+    """Представление для удаления объявления.
+
+    Разрешает удаление только владельцу объявления.
+    """
+
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -101,29 +139,50 @@ class AdDeleteView(generics.DestroyAPIView):
 
 
 class ExchangeProposalListView(generics.ListAPIView):
+    """Представление для получения списка предложений обмена.
+
+    Показывает предложения, где пользователь:
+    - Является отправителем ИЛИ
+    - Является получателем
+    """
+
     serializer_class = ExchangeProposalSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        # Показываем предложения, где пользователь либо отправитель, либо получатель
         return ExchangeProposal.objects.filter(
             Q(ad_sender=self.request.user) | Q(receiver_user=self.request.user)
         ).order_by("-created_at")
 
 
 class ExchangeProposalDetailView(generics.RetrieveAPIView):
+    """Представление для просмотра деталей предложения обмена.
+
+    Доступно только для участников предложения (отправитель/получатель).
+    """
+
     serializer_class = ExchangeProposalSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Показываем предложения, где пользователь либо отправитель, либо получатель
         return ExchangeProposal.objects.filter(
             Q(ad_sender=self.request.user) | Q(receiver_user=self.request.user)
         )
 
 
 class ExchangeProposalCreateView(generics.CreateAPIView):
+    """Представление для создания предложения обмена.
+
+    Проверяет:
+    - Пользователь не автор объявления
+    - Предложение еще не отправлялось
+    Автоматически устанавливает:
+    - Отправителя (текущий пользователь)
+    - Получателя (автор объявления)
+    - Объявление
+    """
+
     serializer_class = ExchangeProposalSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -131,13 +190,11 @@ class ExchangeProposalCreateView(generics.CreateAPIView):
         ad_id = self.request.data.get("ad")
         ad = get_object_or_404(Ad, pk=ad_id)
 
-        # Проверяем, что пользователь не автор объявления
         if ad.author == self.request.user:
             raise serializers.ValidationError(
                 "Вы не можете отправить предложение на свое собственное объявление."
             )
 
-            # Проверяем, что предложение еще не отправлялось
         if ExchangeProposal.objects.filter(ad_sender=self.request.user, ad=ad).exists():
             raise serializers.ValidationError(
                 "Вы уже отправили предложение по этому объявлению."
@@ -147,17 +204,22 @@ class ExchangeProposalCreateView(generics.CreateAPIView):
 
 
 class ExchangeProposalUpdateView(generics.UpdateAPIView):
+    """Представление для обновления статуса предложения.
+
+    Доступно только получателю предложения.
+    При принятии предложения (status="accepted"):
+    - Все остальные предложения по этому объявлению автоматически отклоняются
+    """
+
     serializer_class = ExchangeProposalUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Только получатель предложения может обновлять статус
         return ExchangeProposal.objects.filter(receiver_user=self.request.user)
 
     def perform_update(self, serializer):
         instance = self.get_object()
 
-        # Если статус меняется на "accepted", отклоняем все остальные предложения
         if serializer.validated_data.get("status") == "accepted":
             ExchangeProposal.objects.filter(ad=instance.ad).exclude(
                 pk=instance.pk
@@ -167,9 +229,13 @@ class ExchangeProposalUpdateView(generics.UpdateAPIView):
 
 
 class ExchangeProposalDeleteView(generics.DestroyAPIView):
+    """Представление для удаления предложения обмена.
+
+    Разрешает удаление только отправителю предложения.
+    """
+
     serializer_class = ExchangeProposalSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Удалять можно только свои предложения
         return ExchangeProposal.objects.filter(ad_sender=self.request.user)

@@ -6,6 +6,15 @@ from .models import Ad, ExchangeProposal
 
 @admin.register(Ad)
 class AdAdmin(admin.ModelAdmin):
+    """Административный интерфейс для управления объявлениями (Ad).
+
+    Настройки:
+    - Отображение списка с превью изображений
+    - Фильтрация по категориям, состоянию и дате
+    - Поиск по заголовку и описанию
+    - Пагинация по 6 элементов на страницу
+    """
+
     list_display = (
         "id",
         "title",
@@ -21,6 +30,14 @@ class AdAdmin(admin.ModelAdmin):
     list_per_page = 6
 
     def image_preview(self, obj):
+        """Генерирует HTML-превью изображения для отображения в списке.
+
+        Args:
+            obj: Экземпляр модели Ad
+
+        Returns:
+            str: HTML-код изображения или текст "Нет изображения"
+        """
         if obj.image:
             return format_html(
                 '<img src="{}" style="max-height: 100px; max-width: 100px;" />',
@@ -33,6 +50,15 @@ class AdAdmin(admin.ModelAdmin):
 
 @admin.register(ExchangeProposal)
 class ExchangeProposalAdmin(admin.ModelAdmin):
+    """Административный интерфейс для управления предложениями обмена.
+
+    Настройки:
+    - Отображение списка с цветными статусами
+    - Фильтрация по статусу и дате создания
+    - Поиск по заголовку объявления и комментарию
+    - Пагинация по 20 элементов на страницу
+    """
+
     list_display = (
         "id",
         "ad_sender",
@@ -46,6 +72,14 @@ class ExchangeProposalAdmin(admin.ModelAdmin):
     list_per_page = 20
 
     def status_badge(self, obj):
+        """Генерирует цветной бейдж для отображения статуса.
+
+        Args:
+            obj: Экземпляр модели ExchangeProposal
+
+        Returns:
+            str: HTML-код цветного бейджа со статусом
+        """
         colors = {"pending": "orange", "accepted": "green", "rejected": "red"}
         return format_html(
             '<span style="background: {}; color: white; padding: 3px 8px; border-radius: 10px;">{}</span>',
@@ -56,9 +90,11 @@ class ExchangeProposalAdmin(admin.ModelAdmin):
     status_badge.short_description = "Статус"
 
     # def mark_as_accepted(self, request, queryset):
+    #     """Массовое действие для пометки предложений как принятых."""
     #     queryset.update(status='accepted')
     # mark_as_accepted.short_description = "Пометить как принятые"
     #
     # def mark_as_rejected(self, request, queryset):
+    #     """Массовое действие для пометки предложений как отклоненных."""
     #     queryset.update(status='rejected')
     # mark_as_rejected.short_description = "Пометить как отклоненные"

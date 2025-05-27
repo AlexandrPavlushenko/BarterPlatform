@@ -3,6 +3,23 @@ from django.db import models
 
 
 class Ad(models.Model):
+    """Модель объявления для системы обмена товарами.
+
+    Attributes:
+        CONDITION_CHOICES (list): Варианты состояния товара
+        CATEGORY_CHOICES (list): Доступные категории товаров
+
+    Fields:
+        author (ForeignKey): Ссылка на пользователя-автора
+        title (CharField): Заголовок объявления (макс. 100 символов)
+        description (TextField): Описание товара (макс. 500 символов)
+        image (ImageField): Фото товара (необязательное)
+        category (CharField): Категория товара из CATEGORY_CHOICES
+        condition (CharField): Состояние товара из CONDITION_CHOICES
+        created_at (DateTimeField): Дата создания (автоматически)
+        updated_at (DateTimeField): Дата обновления (автоматически)
+    """
+
     CONDITION_CHOICES = [
         ("new", "Новое"),
         ("used", "Б/у"),
@@ -34,15 +51,38 @@ class Ad(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
 
     def __str__(self):
+        """Строковое представление объявления (используется в админке)."""
         return self.title
 
     class Meta:
+        """Мета-класс для дополнительных настроек модели.
+
+        Attributes:
+            verbose_name: Имя модели
+            verbose_name_plural: Имя во множественном числе
+            ordering: Сортировка по умолчанию (новые сначала)
+        """
+
         verbose_name = "Объявление"
         verbose_name_plural = "Объявления"
         ordering = ["-created_at"]
 
 
 class ExchangeProposal(models.Model):
+    """Модель предложения обмена между пользователями.
+
+    Attributes:
+        STATUS_CHOICES (list): Возможные статусы предложения
+
+    Fields:
+        ad_sender (ForeignKey): Пользователь, отправивший предложение
+        receiver_user (ForeignKey): Автор объявления (получатель)
+        ad (ForeignKey): Связанное объявление
+        comment (TextField): Комментарий к предложению (макс. 500 символов)
+        status (CharField): Статус предложения из STATUS_CHOICES
+        created_at (DateTimeField): Дата создания (автоматически)
+    """
+
     STATUS_CHOICES = [
         ("pending", "Ожидает"),
         ("accepted", "Принята"),
@@ -84,9 +124,19 @@ class ExchangeProposal(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     def __str__(self):
+        """Строковое представление предложения обмена."""
         return f"Предложение от {self.ad_sender} к {self.receiver_user} для объявления '{self.ad.title}'"
 
     class Meta:
+        """Мета-класс для дополнительных настроек модели.
+
+        Attributes:
+            unique_together: Ограничение на уникальность (1 предложение от пользователя на объявление)
+            verbose_name: Имя модели
+            verbose_name_plural: Имя во множественном числе
+            ordering: Сортировка по умолчанию (новые сначала)
+        """
+
         unique_together = [
             "ad_sender",
             "ad",

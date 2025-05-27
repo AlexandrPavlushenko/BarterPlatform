@@ -5,7 +5,11 @@ from .managers import CustomUserManager
 
 
 class User(AbstractUser):
-    """Модель пользователя"""
+    """Кастомная модель пользователя с email в качестве идентификатора.
+
+    Заменяет стандартное поле username на email и добавляет дополнительные поля
+    для хранения информации о пользователе.
+    """
 
     username = None
     email = models.EmailField(unique=True, verbose_name="Эл.почта")
@@ -40,8 +44,15 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
+        """Строковое представление пользователя.
+
+        Returns:
+            str: Email адрес пользователя
+        """
         return self.email
 
     class Meta:
+        """Метаданные модели пользователя."""
+
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"

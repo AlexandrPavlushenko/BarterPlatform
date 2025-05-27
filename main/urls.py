@@ -3,8 +3,10 @@ from django.urls import path
 from .apps import MainConfig
 from .views import IndexView
 
-app_name = MainConfig.name
+# Пространство имен для URL-адресов приложения
+app_name = MainConfig.name  # 'main'
 
 urlpatterns = [
-    path("", IndexView.as_view(), name="index"),
+    # Главная страница приложения
+    path("", IndexView.as_view(), name="index")
 ]
